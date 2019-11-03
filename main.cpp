@@ -4,9 +4,12 @@
 #include "metal.h"
 #include "dielectric.h"
 #include "sphere.h"
+#include "moving_sphere.h"
 #include "hittable_list.h"
 #include <iostream>
 #include <cfloat>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 vec3 color(const ray &r, hittable *world, int depth) {
@@ -40,7 +43,9 @@ hittable* random_scene() {
             vec3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
             if ((center - vec3(4, 0.2, 0)).length() > 0.9) {
                 if (choose_mat < 0.8) {  // diffuse
-                    list[i++] = new sphere(center, 0.2,
+                    list[i++] = new moving_sphere(
+                        center, center + vec3(0, 0.5 * random_double(), 0),
+                        0.0, 1.0, 0.2,
                         new lambertian(vec3(
                             random_double() * random_double(), 
                             random_double() * random_double(), 
@@ -73,8 +78,10 @@ hittable* random_scene() {
 }
 
 int main() {
-    int nx = 600;
-    int ny = 400;
+    srand(time(NULL));
+
+    int nx = 200;
+    int ny = 100;
     int ns = 100;
 
     freopen("myImage.ppm", "w", stdout);
@@ -96,7 +103,7 @@ int main() {
     float dist_to_focus = (lookat - lookfrom).length();
     float aperture = 0;
 
-    camera cam(lookfrom, lookat, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, dist_to_focus);
+    camera cam(lookfrom, lookat, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
 
     for (int j = ny - 1; j >= 0; j--)
         for (int i = 0; i < nx; i++) {

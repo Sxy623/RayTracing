@@ -42,10 +42,10 @@ public:
         }
 
         if (random_double() < reflect_prob) {
-            scattered = ray(rec.p, reflected);
+            scattered = ray(rec.p, reflected, r_in.time());
         } 
         else {
-            scattered = ray(rec.p, refracted);
+            scattered = ray(rec.p, refracted, r_in.time());
         }
 
         return true;
