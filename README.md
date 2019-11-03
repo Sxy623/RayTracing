@@ -9,7 +9,7 @@
 - [Ray Tracing: The Rest of Your Life][web3]
 
 
-[cover]:                    Image/InOneWeekend.jpg
+[cover]:                    images/OneWeekend.jpg
 [web1]:                     https://raytracing.github.io/books/RayTracingInOneWeekend.html
 [web2]:                     https://raytracing.github.io/books/RayTracingTheNextWeek.html
 [web3]:                     https://raytracing.github.io/books/RayTracingTheRestOfYourLife.html
