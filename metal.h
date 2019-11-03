@@ -2,11 +2,6 @@
 #define METAL_H
 
 #include "material.h"
-#include "random.h"
-
-vec3 reflect(const vec3 &v, const vec3 &n) {
-    return v - 2 * dot(v, n) * n;
-}
 
 class metal: public material {
 public:

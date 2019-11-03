@@ -2,7 +2,6 @@
 #define LAMBERTIAN_H
 
 #include "material.h"
-#include "random.h"
 
 class lambertian: public material {
 public:
