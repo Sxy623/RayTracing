@@ -6,7 +6,9 @@
 #include "sphere.h"
 #include "moving_sphere.h"
 #include "hittable_list.h"
+#include "bvh_node.h"
 #include <iostream>
+#include <fstream>
 #include <cfloat>
 #include <cstdlib>
 #include <ctime>
@@ -74,21 +76,25 @@ hittable* random_scene() {
     list[i++] = new sphere(vec3(-4, 1, 0), 1.0, new lambertian(vec3(0.4, 0.2, 0.1)));
     list[i++] = new sphere(vec3(4, 1, 0), 1.0, new metal(vec3(0.7, 0.6, 0.5), 0.0));
 
-    return new hittable_list(list, i);
+    //return new hittable_list(list, i);
+    return new bvh_node(list, i, 0.0, 1.0);
 }
 
 int main() {
+    clock_t start_time, end_time;
+    start_time = clock();
+
     srand(time(NULL));
 
-    int nx = 200;
-    int ny = 100;
+    int nx = 600;
+    int ny = 400;
     int ns = 100;
 
-    freopen("myImage.ppm", "w", stdout);
+    ofstream image("myImage.ppm");
     
-    cout << "P3" << endl;  // The P3 means colors are in ASCII.
-    cout << nx << " " << ny << endl;  // numbers of columns and rows
-    cout << "255" << endl;  // max color
+    image << "P3" << endl;  // The P3 means colors are in ASCII.
+    image << nx << " " << ny << endl;  // numbers of columns and rows
+    image << "255" << endl;  // max color
 
     // hittable *list[4];
     // list[0] = new sphere(vec3(0, 0, -1), 0.5, new lambertian(vec3(0.8, 0.3, 0.3)));
@@ -121,10 +127,18 @@ int main() {
             int ig = int(255.99 * col[1]);
             int ib = int(255.99 * col[2]);
 
-            cout << ir << " " << ig << " " << ib << endl;
+            image << ir << " " << ig << " " << ib << endl;
         }
 
-    fclose(stdout);
+    image.close();
+
+    end_time = clock();
+    int second = (int)((double)(end_time - start_time) / CLOCKS_PER_SEC);
+    int minite = second / 60;
+    second = second % 60;
+    int hour = minite / 60;
+    minite = minite % 60;
+    cout << "The run time is: " << hour << " : " << minite << " : " <<  second << endl;
 
     return 0;
 }
