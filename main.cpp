@@ -1,5 +1,8 @@
+// #define PREVIEW
+
 #include "camera.h"
 #include "random.h"
+#include "texture.h"
 #include "lambertian.h"
 #include "metal.h"
 #include "dielectric.h"
@@ -35,9 +38,13 @@ vec3 color(const ray &r, hittable *world, int depth) {
 }
 
 hittable* random_scene() {
+    texture *checker = new checker_texture(
+        new constant_texture(vec3(0.2, 0.3, 0.1)),
+        new constant_texture(vec3(0.9, 0.9, 0.9))
+    );
     int n = 500;
     hittable **list = new hittable*[n + 1];
-    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(vec3(0.5, 0.5, 0.5)));
+    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(checker));
     int i = 1;
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -48,11 +55,11 @@ hittable* random_scene() {
                     list[i++] = new moving_sphere(
                         center, center + vec3(0, 0.5 * random_double(), 0),
                         0.0, 1.0, 0.2,
-                        new lambertian(vec3(
+                        new lambertian(new constant_texture(vec3(
                             random_double() * random_double(), 
                             random_double() * random_double(), 
                             random_double() * random_double()
-                        ))
+                        )))
                     );
                 }
                 else if (choose_mat < 0.95) {  // metal
@@ -73,11 +80,23 @@ hittable* random_scene() {
         }
     }
     list[i++] = new sphere(vec3(0, 1, 0), 1.0, new dielectric(1.5));
-    list[i++] = new sphere(vec3(-4, 1, 0), 1.0, new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new sphere(vec3(-4, 1, 0), 1.0, new lambertian(new constant_texture(vec3(0.4, 0.2, 0.1))));
     list[i++] = new sphere(vec3(4, 1, 0), 1.0, new metal(vec3(0.7, 0.6, 0.5), 0.0));
 
     //return new hittable_list(list, i);
     return new bvh_node(list, i, 0.0, 1.0);
+}
+
+hittable *two_spheres() {
+    texture *checker = new checker_texture(
+        new constant_texture(vec3(0.2, 0.3, 0.1)),
+        new constant_texture(vec3(0.9, 0.9, 0.9))
+    );
+    int n = 50;
+    hittable **list = new hittable*[n + 1];
+    list[0] = new sphere(vec3(0, -10, 0), 10, new lambertian(checker));
+    list[1] = new sphere(vec3(0, 10, 0), 10, new lambertian(checker));
+    return new hittable_list(list, 2);
 }
 
 int main() {
@@ -86,9 +105,17 @@ int main() {
 
     srand(time(NULL));
 
-    int nx = 600;
-    int ny = 400;
-    int ns = 100;
+    int nx, ny, ns;
+
+#ifdef PREVIEW
+    nx = 200;
+    ny = 100;
+    ns = 100;
+#else
+    nx = 600;
+    ny = 400;
+    ns = 500;
+#endif
 
     ofstream image("myImage.ppm");
     
@@ -96,13 +123,17 @@ int main() {
     image << nx << " " << ny << endl;  // numbers of columns and rows
     image << "255" << endl;  // max color
 
-    // hittable *list[4];
+    // hittable *list[5];
     // list[0] = new sphere(vec3(0, 0, -1), 0.5, new lambertian(vec3(0.8, 0.3, 0.3)));
     // list[1] = new sphere(vec3(0, -100.5, -1), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
     // list[2] = new sphere(vec3(1, 0, -1), 0.5, new metal(vec3(0.8, 0.6, 0.2), 0.3));
     // list[3] = new sphere(vec3(-1, 0, -1), 0.5, new dielectric(1.5));
-    // hittable *world = new hittable_list(list, 4);
-    hittable *world = random_scene();
+    // list[4] = new sphere(vec3(-1, 0, -1), -0.45, new dielectric(1.5));
+    // hittable *world = new hittable_list(list, 5);
+
+    // hittable *world = random_scene();
+
+    hittable *world = two_spheres();
 
     vec3 lookfrom(13, 2, 3);
     vec3 lookat(0, 0, 0);
