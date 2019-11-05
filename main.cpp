@@ -17,6 +17,11 @@
 #include <ctime>
 using namespace std;
 
+vec3 *perlin::ranvec = perlin_generate();
+int *perlin::perm_x = perlin_generate_perm();
+int *perlin::perm_y = perlin_generate_perm();
+int *perlin::perm_z = perlin_generate_perm();
+
 vec3 color(const ray &r, hittable *world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.001, FLT_MAX, rec)) {
@@ -99,6 +104,14 @@ hittable *two_spheres() {
     return new hittable_list(list, 2);
 }
 
+hittable *two_perlin_spheres() {
+    texture *pertexture = new noise_texture(4.0);
+    hittable **list = new hittable*[2];
+    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(pertexture));
+    list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(pertexture));
+    return new hittable_list(list, 2);
+}
+
 int main() {
     clock_t start_time, end_time;
     start_time = clock();
@@ -133,7 +146,9 @@ int main() {
 
     // hittable *world = random_scene();
 
-    hittable *world = two_spheres();
+    // hittable *world = two_spheres();
+
+    hittable *world = two_perlin_spheres();
 
     vec3 lookfrom(13, 2, 3);
     vec3 lookat(0, 0, 0);
