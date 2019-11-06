@@ -4,6 +4,13 @@
 #include "hittable.h"
 #include <cmath>
 
+void get_sphere_uv(const vec3 &p, float &u, float &v) {
+    float phi = atan2(p.z(), p.x());
+    float theta = asin(p.y());
+    u = 1 - (phi + M_PI) / (2 * M_PI);
+    v = (theta + M_PI / 2) / M_PI;
+}
+
 class sphere: public hittable {
 public:
     sphere() {}
@@ -18,6 +25,9 @@ public:
 };
 
 bool sphere::hit(const ray &r, float t_min, float t_max, hit_record &rec) const {
+#ifdef DEBUG
+    std::cout << "sphere::hit()" << std::endl;
+#endif
     vec3 oc = r.origin() - center;
     float a = dot(r.direction(), r.direction());
     float b = 2.0 * dot(r.direction(), oc);
@@ -30,6 +40,7 @@ bool sphere::hit(const ray &r, float t_min, float t_max, hit_record &rec) const 
             rec.p = r.point_at_parameter(rec.t);
             rec.normal = (rec.p - center) / radius;
             rec.mat_ptr = mat_ptr;
+            get_sphere_uv((rec.p - center) / radius, rec.u, rec.v);
             return true;
         }
         temp = (-b + sqrt(discriminant)) / (2.0 * a);
@@ -38,6 +49,7 @@ bool sphere::hit(const ray &r, float t_min, float t_max, hit_record &rec) const 
             rec.p = r.point_at_parameter(rec.t);
             rec.normal = (rec.p - center) / radius;
             rec.mat_ptr = mat_ptr;
+            get_sphere_uv((rec.p - center) / radius, rec.u, rec.v);
             return true;
         }
     }

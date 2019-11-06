@@ -1,5 +1,8 @@
 // #define PREVIEW
+// #define DEBUG
+#define STB_IMAGE_IMPLEMENTATION
 
+#include "stb/stb_image.h"
 #include "camera.h"
 #include "random.h"
 #include "texture.h"
@@ -23,6 +26,9 @@ int *perlin::perm_y = perlin_generate_perm();
 int *perlin::perm_z = perlin_generate_perm();
 
 vec3 color(const ray &r, hittable *world, int depth) {
+#ifdef DEBUG
+    cout << "color()" << endl;
+#endif
     hit_record rec;
     if (world->hit(r, 0.001, FLT_MAX, rec)) {
         ray scattered;
@@ -105,10 +111,20 @@ hittable *two_spheres() {
 }
 
 hittable *two_perlin_spheres() {
-    texture *pertexture = new noise_texture(4.0);
+    texture *marble = new noise_texture(4.0);
     hittable **list = new hittable*[2];
-    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(pertexture));
-    list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(pertexture));
+    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(marble));
+    list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(marble));
+    return new hittable_list(list, 2);
+}
+
+hittable *image_spheres() {
+    texture *marble = new noise_texture(4.0);
+    int nx, ny, nn;
+    unsigned char *tex_data = stbi_load("resources/earth.jpg", &nx, &ny, &nn, 0);
+    hittable **list = new hittable*[2];
+    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(marble));
+    list[1] = new sphere(vec3(0, 1, 0), 1, new lambertian(new image_texture(tex_data, nx, ny)));
     return new hittable_list(list, 2);
 }
 
@@ -148,7 +164,9 @@ int main() {
 
     // hittable *world = two_spheres();
 
-    hittable *world = two_perlin_spheres();
+    // hittable *world = two_perlin_spheres();
+
+    hittable *world = image_spheres();
 
     vec3 lookfrom(13, 2, 3);
     vec3 lookat(0, 0, 0);

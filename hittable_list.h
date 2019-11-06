@@ -16,6 +16,9 @@ public:
 };
 
 bool hittable_list::hit(const ray &r, float t_min, float t_max, hit_record &rec) const {
+#ifdef DEBUG
+    std::cout << "hittable_list::hit()" << std::endl;
+#endif
     hit_record temp_rec;
     bool hit_anything = false;
     double closest_so_far = t_max;
