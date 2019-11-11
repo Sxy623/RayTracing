@@ -155,11 +155,11 @@ hittable *cornell_box() {
     material *red = new lambertian(new constant_texture(vec3(0.65, 0.05, 0.05)));
     material *white = new lambertian(new constant_texture(vec3(0.73, 0.73, 0.73)));
     material *green = new lambertian(new constant_texture(vec3(0.12, 0.45, 0.15)));
-    material *light = new diffuse_light(new constant_texture(vec3(15, 15, 15)));
+    material *light = new diffuse_light(new constant_texture(vec3(7, 7, 7)));
 
     list[i++] = new flip_normals(new yz_rect(0, 555, 0, 555, 555, green));
     list[i++] = new yz_rect(0, 555, 0, 555, 0, red);
-    list[i++] = new xz_rect(213, 343, 227, 332, 554, light);
+    list[i++] = new xz_rect(113, 443, 127, 432, 554, light);
     list[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, white));
     list[i++] = new xz_rect(0, 555, 0, 555, 0, white);
     list[i++] = new flip_normals(new xy_rect(0, 555, 0, 555, 555, white));
@@ -233,6 +233,10 @@ int main() {
             }
             col /= ns;
             col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+
+            if (col[0] > 1.0) col[0] = 1.0;
+            if (col[1] > 1.0) col[1] = 1.0;
+            if (col[2] > 1.0) col[2] = 1.0;
 
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);
