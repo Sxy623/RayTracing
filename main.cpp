@@ -1,4 +1,4 @@
-// #define PREVIEW
+#define PREVIEW
 // #define DEBUG
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -22,6 +22,7 @@
 #include "box.h"
 #include "translate.h"
 #include "rotate.h"
+#include "constant_medium.h"
 
 #include <iostream>
 #include <fstream>
@@ -109,7 +110,7 @@ hittable* random_scene() {
     return new bvh_node(list, i, 0.0, 1.0);
 }
 
-hittable *two_spheres() {
+hittable* two_spheres() {
     texture *checker = new checker_texture(
         new constant_texture(vec3(0.2, 0.3, 0.1)),
         new constant_texture(vec3(0.9, 0.9, 0.9))
@@ -121,7 +122,7 @@ hittable *two_spheres() {
     return new hittable_list(list, 2);
 }
 
-hittable *two_perlin_spheres() {
+hittable* two_perlin_spheres() {
     texture *marble = new noise_texture(4.0);
     hittable **list = new hittable*[2];
     list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(marble));
@@ -129,7 +130,7 @@ hittable *two_perlin_spheres() {
     return new hittable_list(list, 2);
 }
 
-hittable *image_spheres() {
+hittable* image_spheres() {
     texture *marble = new noise_texture(4.0);
     int nx, ny, nn;
     unsigned char *tex_data = stbi_load("resources/earth.jpg", &nx, &ny, &nn, 0);
@@ -139,7 +140,7 @@ hittable *image_spheres() {
     return new hittable_list(list, 2);
 }
 
-hittable *simple_light() {
+hittable* simple_light() {
     texture *marble = new noise_texture(4.0);
     hittable **list = new hittable*[4];
     list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(marble));
@@ -149,7 +150,7 @@ hittable *simple_light() {
     return new hittable_list(list, 4);
 }
 
-hittable *cornell_box() {
+hittable* cornell_box() {
     hittable **list = new hittable*[8];
     int i = 0;
     material *red = new lambertian(new constant_texture(vec3(0.65, 0.05, 0.05)));
@@ -170,6 +171,32 @@ hittable *cornell_box() {
     return new hittable_list(list, i);
 }
 
+hittable* cornell_smoke() {
+    hittable **list = new hittable*[8];
+    int i = 0;
+    material *red = new lambertian(new constant_texture(vec3(0.65, 0.05, 0.05)));
+    material *white = new lambertian(new constant_texture(vec3(0.73, 0.73, 0.73)));
+    material *green = new lambertian(new constant_texture(vec3(0.12, 0.45, 0.15)));
+    material *light = new diffuse_light(new constant_texture(vec3(7, 7, 7)));
+
+    list[i++] = new flip_normals(new yz_rect(0, 555, 0, 555, 555, green));
+    list[i++] = new yz_rect(0, 555, 0, 555, 0, red);
+    list[i++] = new xz_rect(113, 443, 127, 432, 554, light);
+    list[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, white));
+    list[i++] = new xz_rect(0, 555, 0, 555, 0, white);
+    list[i++] = new flip_normals(new xy_rect(0, 555, 0, 555, 555, white));
+
+    hittable *b1 = new translate(new rotate_y(new box(vec3(0, 0, 0), vec3(165, 165, 165), white), -18), vec3(130, 0, 65));
+    hittable *b2 = new translate(new rotate_y(new box(vec3(0, 0, 0), vec3(165, 330, 165), white), 15), vec3(265, 0, 295));
+
+    list[i++] = new constant_medium(b1, 0.01, new constant_texture(vec3(1.0, 1.0, 1.0)));
+    list[i++] = new constant_medium(b2, 0.01, new constant_texture(vec3(0.0, 0.0, 0.0)));
+
+    return new hittable_list(list, i);
+}
+
+
+
 int main() {
     clock_t start_time, end_time;
     start_time = clock();
@@ -185,7 +212,7 @@ int main() {
 #else
     nx = 500;
     ny = 500;
-    ns = 500;
+    ns = 3000;
 #endif
 
     ofstream image("myImage.ppm");
@@ -212,7 +239,9 @@ int main() {
 
     // hittable *world = simple_light();
 
-    hittable *world = cornell_box();
+    // hittable *world = cornell_box();
+
+    hittable *world = cornell_smoke();
 
     vec3 lookfrom(278, 278, -800);
     vec3 lookat(278, 278, 0);
