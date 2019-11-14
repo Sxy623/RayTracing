@@ -53,7 +53,7 @@ int main() {
 #else
     nx = 500;
     ny = 500;
-    ns = 500;
+    ns = 3000;
 #endif
 
     ofstream image("myImage.ppm");
